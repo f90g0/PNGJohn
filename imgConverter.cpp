@@ -1,33 +1,8 @@
 #include "imgConverter.h"
 
-QImage ImgConverter::SetAlphaChannelPixel(QImage image)
+ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath)
 {
-    QImage alphaSetImage = image;
-    QColor PixColor = QColor::fromRgba(alphaSetImage.pixel(0,0));
-
-    qDebug() << "Original Color : " << QColor::fromRgba(alphaSetImage.pixel(0,0));
-
-    alphaSetImage.setPixel(0,0,QColor(PixColor.red(),PixColor.green(),PixColor.blue(),254).rgba());
-
-    qDebug() << "Edited Color   : " << QColor::fromRgba(alphaSetImage.pixel(0,0));
-    qDebug() << "Output Size    : " << alphaSetImage.width() << " x " << alphaSetImage.height();
-
-    return alphaSetImage;
-}
-
-ImgConverter::ImgConverter()
-{
-    QFile originalImageData("test.png");
-
-    if (!originalImageData.open(QIODevice::ReadOnly)) {
-        return;
-    }
-
-    QByteArray originalImageArray = originalImageData.readAll();
-
-    QImage originalImage = QImage::fromData(originalImageArray,"PNG");
-    qDebug() << originalImage;
-
+    QImage originalImage = convertImage;
     QImage argb32Image = originalImage.convertToFormat(QImage::Format_ARGB32);
 
     QImage scaledImage; //Raw ARGB32 Image
@@ -37,7 +12,7 @@ ImgConverter::ImgConverter()
 
     if (pngImageBuffer.size() <= 3000000) {
         argb32Image = SetAlphaChannelPixel(argb32Image);
-        argb32Image.save("output.png", "PNG");
+        argb32Image.save(outputFilePath, "PNG");
         qDebug() << "orig size";
     } else {
         int decrementToPix = 5;
@@ -51,7 +26,7 @@ ImgConverter::ImgConverter()
         //バカっぽい
         bool decrementLine; //0:height, 1:width
         int minLineValue = qMin(argb32Image.height(), argb32Image.width());
-        int uploadableMaxPixels = 2048 * 2048; //
+        int uploadableMaxPixels = 2048 * 2048; //Maximum supported　Pixel size.
 
         if(minLineValue == argb32Image.height()) {
             decrementLine = 0;
@@ -89,7 +64,22 @@ ImgConverter::ImgConverter()
             scaledImage.save(&imageWriteBuffer, "PNG");
         }
         scaledImage = SetAlphaChannelPixel(scaledImage);
-        scaledImage.save("output.png", "PNG");
+        scaledImage.save(outputFilePath, "PNG");
 
     }
+}
+
+QImage ImgConverter::SetAlphaChannelPixel(QImage image)
+{
+    QImage alphaSetImage = image;
+    QColor PixColor = QColor::fromRgba(alphaSetImage.pixel(0,0));
+
+    qDebug() << "Original Color : " << QColor::fromRgba(alphaSetImage.pixel(0,0));
+
+    alphaSetImage.setPixel(0,0,QColor(PixColor.red(),PixColor.green(),PixColor.blue(),254).rgba());
+
+    qDebug() << "Edited Color   : " << QColor::fromRgba(alphaSetImage.pixel(0,0));
+    qDebug() << "Output Size    : " << alphaSetImage.width() << " x " << alphaSetImage.height();
+
+    return alphaSetImage;
 }

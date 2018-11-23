@@ -7,6 +7,10 @@
 #include <QDropEvent>
 #include <QTextEdit>
 #include <QScrollBar>
+#include <QFileDialog>
+#include <QGraphicsScene>
+#include <QGraphicsItem>
+
 
 
 namespace Ui {
@@ -21,10 +25,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void BrowseFile();
+    void onConvertButton();
+
 private:
     Ui::MainWindow *ui;
-    //void dropEvent(QDropEvent *event) override;
-    void loadImage(QString filePath);
+    QGraphicsScene _preview;
+    void PreviewImage(QString filePath);
+    QImage _previewImage;
 };
 
 #endif // MAINWINDOW_H

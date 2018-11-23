@@ -8,9 +8,8 @@
 class ImgConverter
 {
 public:
-    ImgConverter();
+    ImgConverter(QImage convertImage, QString outputFilePath);
     QImage SetAlphaChannelPixel(QImage nonAlphaImage);
-    //getColor();
 };
 
 #endif // IMGCONVERTER_H

@@ -7,7 +7,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ImgConverter imgConverter = ImgConverter();
+//    ImgConverter imgConverter = ImgConverter();
+
+    connect(ui->imageBrowseButton, SIGNAL(clicked(bool)), this, SLOT(BrowseFile()));
+    connect(ui->convertButton,     SIGNAL(clicked(bool)), this, SLOT(onConvertButton()));
 }
 
 MainWindow::~MainWindow()
@@ -15,47 +18,37 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-//int MainWindow::calcProcessTime()
-//{
-//    QString gcode = ui->gcodeTextBox->toPlainText();
-//    ProcessTime processTime = ProcessTime(gcode);
-//    processTime.setSeekSpeed(5500);
-//    return processTime.calc();
-//    //return 1;
-//}
-
-//void MainWindow::loadImage(QString filePath)
-//{
-
-//}
-
-/*
-void MainWindow::dropEvent(QDropEvent *event)
+void MainWindow::BrowseFile()
 {
-    if (event->mimeData()->hasUrls() == false) {
-        return;
-    }
+    //TODO:returnした時にgetopenfileなにがしが走るやつにしたい
+    QString filePath = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "", QDir::currentPath(), "Images (*.png *.jpg)"));
 
-    QUrl    fileUrl  = event->mimeData()->urls()[0];
-    QString filePath = QDir::toNativeSeparators(fileUrl.toLocalFile());
+    QFile filePath_QFile(filePath);
+    QString absolutePath = QFileInfo(filePath_QFile).absolutePath(),
+            baseName     = QFileInfo(filePath_QFile).baseName();
 
-    QFile file(filePath);
-    if(!file.open(QIODevice::ReadOnly)) {
-        //Debug::failed("@drop event: file open error.");
-        return;
-    }
+    ui->inputFilePath->insert(filePath);
+    ui->outputFilePath->insert(absolutePath + "/" + baseName + "_twi.png");
 
-    QFileInfo fileInfo(file);
-    if (fileInfo.completeSuffix() != "gcode") {
-        //Debug::failed("@drop event: file is not 'gcode' suffix.");
-        return;
-    }
-
-    QTextStream textData(&file);
-    QString text = textData.readAll();
-    file.close();
-
-    loadImage(text);
+    PreviewImage(filePath);
 }
-*/
 
+void MainWindow::PreviewImage(QString filePath)
+{
+    QFile previewImageData(filePath);
+
+    if (!previewImageData.open(QIODevice::ReadOnly)) {
+        return;
+    }
+
+    QByteArray previewImageArray = previewImageData.readAll();
+    _previewImage = QImage::fromData(previewImageArray);
+    QGraphicsPixmapItem *preview_image_item = new QGraphicsPixmapItem(QPixmap::fromImage(_previewImage));
+    _preview.addItem(preview_image_item);
+}
+
+void MainWindow::onConvertButton()
+{
+    ImgConverter imgConverter(_previewImage, ui->outputFilePath->text());
+    qDebug() << ui->outputFilePath->text();
+}
