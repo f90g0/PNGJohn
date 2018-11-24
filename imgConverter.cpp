@@ -1,12 +1,12 @@
 #include "imgConverter.h"
 
-ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath)
+ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath, double tolerance)
 {
-    QFuture<void> imgConverterThread = QtConcurrent::run(this, &ImgConverter::ResizeImage, convertImage, outputFilePath);
+    QFuture<void> imgConverterThread = QtConcurrent::run(this, &ImgConverter::ResizeImage, convertImage, outputFilePath, tolerance);
 
 }
 
-void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath)
+void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, double tolerance)
 {
     QImage originalImage = convertImage;
     QImage argb32Image = originalImage.convertToFormat(QImage::Format_ARGB32);
@@ -56,7 +56,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath)
         scaledImage.save(&imageWriteBuffer, "PNG");
 
         double rate = CalcTargetSizeRate(imageWriteBuffer.size());
-        while(rate <= 0.99 || 1.00 <= rate){
+        while(rate <= tolerance || 1.00 <= rate){
             middleSize = (lowSize + highSize) / 2;
             if(decrementLine == 0) {
                 scaledImage = argb32Image.scaledToHeight(middleSize, Qt::SmoothTransformation);
@@ -74,7 +74,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath)
             qDebug() << "rate" << rate;
             if(middleSize == highSize){
                 break;
-            }else if(rate <= 0.99){
+            }else if(rate <= tolerance){
                 lowSize = middleSize + 1;
             }else if(1.00 <= rate){
                 highSize = middleSize + 1;

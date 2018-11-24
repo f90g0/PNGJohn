@@ -10,10 +10,10 @@
 class ImgConverter
 {
 public:
-    ImgConverter(QImage convertImage, QString outputFilePath);
+    ImgConverter(QImage convertImage, QString outputFilePath, double tolerance);
 
 private:
-    void ResizeImage(QImage convertImage, QString outputFilePath);
+    void ResizeImage(QImage convertImage, QString outputFilePath, double tolerance);
     QImage SetAlphaChannelPixel(QImage nonAlphaImage);
     double CalcTargetSizeRate(qint64 size);
 
