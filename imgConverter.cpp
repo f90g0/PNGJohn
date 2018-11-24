@@ -1,6 +1,12 @@
 #include "imgConverter.h"
 
-ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath)
+ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath, int reductionAmount)
+{
+    QFuture<void> imgConverterThread = QtConcurrent::run(this, &ImgConverter::ResizeImage, convertImage, outputFilePath, reductionAmount);
+
+}
+
+void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, int reductionAmount)
 {
     QImage originalImage = convertImage;
     QImage argb32Image = originalImage.convertToFormat(QImage::Format_ARGB32);
@@ -15,7 +21,7 @@ ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath)
         argb32Image.save(outputFilePath, "PNG");
         qDebug() << "orig size";
     } else {
-        int decrementToPix = 5;
+        int decrementToPix = reductionAmount;
 
         QByteArray bufferArray;
         QBuffer imageWriteBuffer(&bufferArray);
@@ -57,8 +63,8 @@ ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath)
             qDebug() << "size" << scaledImage.width() << " x " << scaledImage.height();
 
             imageWriteBuffer.close();
-            decrementToPix += 5;
             qDebug() << decrementToPix;
+            decrementToPix += reductionAmount;
             qDebug() << "buf size" << imageWriteBuffer.size();
             bufferArray.clear();
             scaledImage.save(&imageWriteBuffer, "PNG");
@@ -67,6 +73,7 @@ ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath)
         scaledImage.save(outputFilePath, "PNG");
 
     }
+
 }
 
 QImage ImgConverter::SetAlphaChannelPixel(QImage image)
