@@ -50,7 +50,7 @@ void MainWindow::PreviewImage(QString filePath)
 
 void MainWindow::onConvertButton()
 {
-    ImgConverter(_previewImage, ui->outputFilePath->text(), ui->reductionAmount->value());
+    ImgConverter(_previewImage, ui->outputFilePath->text());
 
     qDebug() << ui->outputFilePath->text();
 }
