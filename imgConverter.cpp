@@ -1,12 +1,12 @@
 #include "imgConverter.h"
 
-ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath, int reductionAmount)
+ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath)
 {
-    QFuture<void> imgConverterThread = QtConcurrent::run(this, &ImgConverter::ResizeImage, convertImage, outputFilePath, reductionAmount);
+    QFuture<void> imgConverterThread = QtConcurrent::run(this, &ImgConverter::ResizeImage, convertImage, outputFilePath);
 
 }
 
-void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, int reductionAmount)
+void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath)
 {
     QImage originalImage = convertImage;
     QImage argb32Image = originalImage.convertToFormat(QImage::Format_ARGB32);
@@ -21,8 +21,6 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, int 
         argb32Image.save(outputFilePath, "PNG");
         qDebug() << "orig size";
     } else {
-        int decrementToPix = reductionAmount;
-
         QByteArray bufferArray;
         QBuffer imageWriteBuffer(&bufferArray);
 
@@ -40,34 +38,50 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, int 
             decrementLine = 1;
         }
 
+        int lowSize = 0;
+        int highSize;
+        int middleSize;
         int limitedPixWidth = round(qSqrt((uploadableMaxPixels * (float)argb32Image.width()) / (float)argb32Image.height()));
         int limitedPixHeight = round(qSqrt((uploadableMaxPixels * (float)argb32Image.height()) / (float)argb32Image.width()));
         qDebug() << "limited width:" << limitedPixWidth << " limited height:" << limitedPixHeight << " limited pix num:" << limitedPixHeight * limitedPixWidth;
 
         if(decrementLine == 0) {
             scaledImage = argb32Image.scaledToHeight((limitedPixHeight),Qt::SmoothTransformation);
+            highSize = limitedPixHeight;
         } else {
             scaledImage = argb32Image.scaledToWidth((limitedPixWidth),Qt::SmoothTransformation);
+            highSize = limitedPixWidth;
             qDebug() << scaledImage;
         }
         scaledImage.save(&imageWriteBuffer, "PNG");
 
-
-
-        while(imageWriteBuffer.size() > 3000000){
+        double rate = CalcTargetSizeRate(imageWriteBuffer.size());
+        while(rate <= 0.99 || 1.00 <= rate){
+            middleSize = (lowSize + highSize) / 2;
             if(decrementLine == 0) {
-                scaledImage = scaledImage.scaledToHeight((scaledImage.height() - decrementToPix),Qt::SmoothTransformation);
+                scaledImage = argb32Image.scaledToHeight(middleSize, Qt::SmoothTransformation);
             } else {
-                scaledImage = scaledImage.scaledToWidth((scaledImage.width() - decrementToPix),Qt::SmoothTransformation);
+                scaledImage = argb32Image.scaledToWidth(middleSize, Qt::SmoothTransformation);
             }
             qDebug() << "size" << scaledImage.width() << " x " << scaledImage.height();
 
             imageWriteBuffer.close();
-            qDebug() << decrementToPix;
-            decrementToPix += reductionAmount;
             qDebug() << "buf size" << imageWriteBuffer.size();
             bufferArray.clear();
             scaledImage.save(&imageWriteBuffer, "PNG");
+
+            rate = CalcTargetSizeRate(imageWriteBuffer.size());
+            qDebug() << "rate" << rate;
+            if(middleSize == highSize){
+                break;
+            }else if(rate <= 0.99){
+                lowSize = middleSize + 1;
+            }else if(1.00 <= rate){
+                highSize = middleSize + 1;
+            }
+            qDebug() << "middleSize" << middleSize;
+            qDebug() << "lowSize" << lowSize;
+            qDebug() << "highSize" << highSize;
         }
         scaledImage = SetAlphaChannelPixel(scaledImage);
         scaledImage.save(outputFilePath, "PNG");
@@ -89,4 +103,9 @@ QImage ImgConverter::SetAlphaChannelPixel(QImage image)
     qDebug() << "Output Size    : " << alphaSetImage.width() << " x " << alphaSetImage.height();
 
     return alphaSetImage;
+}
+
+double ImgConverter::CalcTargetSizeRate(qint64 size)
+{
+    return static_cast<double>(size) / 3000000;
 }
