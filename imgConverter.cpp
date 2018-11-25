@@ -9,23 +9,19 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
 {
     QImage originalImage = convertImage;
     QImage argb32Image = originalImage.convertToFormat(QImage::Format_ARGB32);
-
     QImage scaledImage; //Raw ARGB32 Image
-    QBuffer pngImageBuffer;
+    QByteArray bufferArray;
+    QBuffer imageWriteBuffer(&bufferArray);
 
-    argb32Image.save(&pngImageBuffer, "PNG");
-
-    if (pngImageBuffer.size() <= UploadableMaxPngSize) {
+    imageWriteBuffer.open(QIODevice::WriteOnly);
+    argb32Image.save(&imageWriteBuffer, "PNG");
+    if (imageWriteBuffer.size() <= UploadableMaxPngSize) {
+        imageWriteBuffer.close();
         argb32Image = SetAlphaChannelPixel(argb32Image);
         argb32Image.save(outputFilePath, "PNG");
         qDebug() << "orig size";
         return;
     }
-
-    QByteArray bufferArray;
-    QBuffer imageWriteBuffer(&bufferArray);
-    imageWriteBuffer.open(QIODevice::WriteOnly);
-    argb32Image.save(&imageWriteBuffer, "PNG");
 
     Direction scaleDirection;
     int lowSize = 0;
@@ -43,6 +39,8 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
         qDebug() << "limited width:" << limitedPixWidth;
     }
     scaledImage = ScaleImage(argb32Image, highSize, scaleDirection);
+    imageWriteBuffer.seek(0);
+    bufferArray.clear();
     scaledImage.save(&imageWriteBuffer, "PNG");
 
     double rate = CalcTargetSizeRate(imageWriteBuffer.size());
@@ -50,7 +48,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
         middleSize = (lowSize + highSize) / 2;
         scaledImage = ScaleImage(argb32Image, middleSize, scaleDirection);
         qDebug() << "size" << scaledImage.width() << " x " << scaledImage.height();
-        imageWriteBuffer.close();
+        imageWriteBuffer.seek(0);
         qDebug() << "buf size" << imageWriteBuffer.size();
         bufferArray.clear();
         scaledImage.save(&imageWriteBuffer, "PNG");
@@ -68,6 +66,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
         qDebug() << "lowSize" << lowSize;
         qDebug() << "highSize" << highSize;
     }
+    imageWriteBuffer.close();
     scaledImage = SetAlphaChannelPixel(scaledImage);
     scaledImage.save(outputFilePath, "PNG");
 }
