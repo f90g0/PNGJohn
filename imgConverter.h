@@ -17,6 +17,12 @@ private:
     QImage SetAlphaChannelPixel(QImage nonAlphaImage);
     double CalcTargetSizeRate(qint64 size);
 
+    enum Direction
+    {
+        Height,
+        Width,
+    };
+
 };
 
 #endif // IMGCONVERTER_H

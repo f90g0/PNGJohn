@@ -27,14 +27,13 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     QBuffer imageWriteBuffer(&bufferArray);
     imageWriteBuffer.open(QIODevice::WriteOnly);
     argb32Image.save(&imageWriteBuffer, "PNG");
-    //バカっぽい
-    bool decrementLine; //0:height, 1:width
+    Direction scaleDirection;
     int minLineValue = qMin(argb32Image.height(), argb32Image.width());
     int uploadableMaxPixels = 2048 * 2048; //Maximum supported　Pixel size.
     if(minLineValue == argb32Image.height()) {
-        decrementLine = 0;
+        scaleDirection = Direction::Height;
     } else {
-        decrementLine = 1;
+        scaleDirection = Direction::Width;
     }
     int lowSize = 0;
     int highSize;
@@ -42,7 +41,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     int limitedPixWidth = round(qSqrt((uploadableMaxPixels * (float)argb32Image.width()) / (float)argb32Image.height()));
     int limitedPixHeight = round(qSqrt((uploadableMaxPixels * (float)argb32Image.height()) / (float)argb32Image.width()));
     qDebug() << "limited width:" << limitedPixWidth << " limited height:" << limitedPixHeight << " limited pix num:" << limitedPixHeight * limitedPixWidth;
-    if(decrementLine == 0) {
+    if(scaleDirection == Direction::Height) {
         scaledImage = argb32Image.scaledToHeight((limitedPixHeight),Qt::SmoothTransformation);
         highSize = limitedPixHeight;
     } else {
@@ -54,7 +53,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     double rate = CalcTargetSizeRate(imageWriteBuffer.size());
     while(rate <= tolerance || 1.00 <= rate){
         middleSize = (lowSize + highSize) / 2;
-        if(decrementLine == 0) {
+        if(scaleDirection == Direction::Height) {
             scaledImage = argb32Image.scaledToHeight(middleSize, Qt::SmoothTransformation);
         } else {
             scaledImage = argb32Image.scaledToWidth(middleSize, Qt::SmoothTransformation);
