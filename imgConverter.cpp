@@ -3,7 +3,6 @@
 ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath, double tolerance)
 {
     QFuture<void> imgConverterThread = QtConcurrent::run(this, &ImgConverter::ResizeImage, convertImage, outputFilePath, tolerance);
-
 }
 
 void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, double tolerance)
@@ -27,26 +26,25 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     QBuffer imageWriteBuffer(&bufferArray);
     imageWriteBuffer.open(QIODevice::WriteOnly);
     argb32Image.save(&imageWriteBuffer, "PNG");
+
     Direction scaleDirection;
     int lowSize = 0;
     int highSize;
     int middleSize;
-    int limitedPixWidth;
-    int limitedPixHeight;
     if(argb32Image.width() >= argb32Image.height()) {
         scaleDirection = Direction::Height;
-        limitedPixHeight = static_cast<int>(round(qSqrt(UploadableMaxPixels * static_cast<qreal>(argb32Image.height()) / argb32Image.width())));
+        int limitedPixHeight = static_cast<int>(round(qSqrt(UploadableMaxPixels * static_cast<qreal>(argb32Image.height()) / argb32Image.width())));
         highSize = limitedPixHeight;
         qDebug() << " limited height:" << limitedPixHeight;
     } else {
         scaleDirection = Direction::Width;
-        limitedPixWidth = static_cast<int>(round(qSqrt(UploadableMaxPixels * static_cast<qreal>(argb32Image.width()) / argb32Image.height())));
+        int limitedPixWidth = static_cast<int>(round(qSqrt(UploadableMaxPixels * static_cast<qreal>(argb32Image.width()) / argb32Image.height())));
         highSize = limitedPixWidth;
         qDebug() << "limited width:" << limitedPixWidth;
     }
     scaledImage = ScaleImage(argb32Image, highSize, scaleDirection);
-
     scaledImage.save(&imageWriteBuffer, "PNG");
+
     double rate = CalcTargetSizeRate(imageWriteBuffer.size());
     while(rate <= tolerance || 1.00 <= rate){
         middleSize = (lowSize + highSize) / 2;
@@ -56,6 +54,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
         qDebug() << "buf size" << imageWriteBuffer.size();
         bufferArray.clear();
         scaledImage.save(&imageWriteBuffer, "PNG");
+
         rate = CalcTargetSizeRate(imageWriteBuffer.size());
         qDebug() << "rate" << rate;
         if(middleSize == highSize){
