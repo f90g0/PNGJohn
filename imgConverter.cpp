@@ -28,9 +28,8 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     imageWriteBuffer.open(QIODevice::WriteOnly);
     argb32Image.save(&imageWriteBuffer, "PNG");
     Direction scaleDirection;
-    int minLineValue = qMin(argb32Image.height(), argb32Image.width());
     int uploadableMaxPixels = 2048 * 2048; //Maximum supported　Pixel size.
-    if(minLineValue == argb32Image.height()) {
+    if(argb32Image.width() >= argb32Image.height()) {
         scaleDirection = Direction::Height;
     } else {
         scaleDirection = Direction::Width;
