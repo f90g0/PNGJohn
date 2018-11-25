@@ -29,21 +29,21 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     argb32Image.save(&imageWriteBuffer, "PNG");
     Direction scaleDirection;
     int uploadableMaxPixels = 2048 * 2048; //Maximum supported　Pixel size.
-    if(argb32Image.width() >= argb32Image.height()) {
-        scaleDirection = Direction::Height;
-    } else {
-        scaleDirection = Direction::Width;
-    }
     int lowSize = 0;
     int highSize;
     int middleSize;
-    int limitedPixWidth = round(qSqrt((uploadableMaxPixels * (float)argb32Image.width()) / (float)argb32Image.height()));
-    int limitedPixHeight = round(qSqrt((uploadableMaxPixels * (float)argb32Image.height()) / (float)argb32Image.width()));
-    qDebug() << "limited width:" << limitedPixWidth << " limited height:" << limitedPixHeight << " limited pix num:" << limitedPixHeight * limitedPixWidth;
-    if(scaleDirection == Direction::Height) {
+    int limitedPixWidth;
+    int limitedPixHeight;
+    if(argb32Image.width() >= argb32Image.height()) {
+        scaleDirection = Direction::Height;
+        limitedPixHeight = static_cast<int>(round(qSqrt(uploadableMaxPixels * static_cast<qreal>(argb32Image.height()) / argb32Image.width())));
         highSize = limitedPixHeight;
+        qDebug() << " limited height:" << limitedPixHeight;
     } else {
+        scaleDirection = Direction::Width;
+        limitedPixWidth = static_cast<int>(round(qSqrt(uploadableMaxPixels * static_cast<qreal>(argb32Image.width()) / argb32Image.height())));
         highSize = limitedPixWidth;
+        qDebug() << "limited width:" << limitedPixWidth;
     }
     scaledImage = ScaleImage(argb32Image, highSize, scaleDirection);
 
