@@ -16,7 +16,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
 
     argb32Image.save(&pngImageBuffer, "PNG");
 
-    if (pngImageBuffer.size() <= 3000000) {
+    if (pngImageBuffer.size() <= UploadableMaxPngSize) {
         argb32Image = SetAlphaChannelPixel(argb32Image);
         argb32Image.save(outputFilePath, "PNG");
         qDebug() << "orig size";
@@ -28,7 +28,6 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     imageWriteBuffer.open(QIODevice::WriteOnly);
     argb32Image.save(&imageWriteBuffer, "PNG");
     Direction scaleDirection;
-    int uploadableMaxPixels = 2048 * 2048; //Maximum supported　Pixel size.
     int lowSize = 0;
     int highSize;
     int middleSize;
@@ -36,12 +35,12 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     int limitedPixHeight;
     if(argb32Image.width() >= argb32Image.height()) {
         scaleDirection = Direction::Height;
-        limitedPixHeight = static_cast<int>(round(qSqrt(uploadableMaxPixels * static_cast<qreal>(argb32Image.height()) / argb32Image.width())));
+        limitedPixHeight = static_cast<int>(round(qSqrt(UploadableMaxPixels * static_cast<qreal>(argb32Image.height()) / argb32Image.width())));
         highSize = limitedPixHeight;
         qDebug() << " limited height:" << limitedPixHeight;
     } else {
         scaleDirection = Direction::Width;
-        limitedPixWidth = static_cast<int>(round(qSqrt(uploadableMaxPixels * static_cast<qreal>(argb32Image.width()) / argb32Image.height())));
+        limitedPixWidth = static_cast<int>(round(qSqrt(UploadableMaxPixels * static_cast<qreal>(argb32Image.width()) / argb32Image.height())));
         highSize = limitedPixWidth;
         qDebug() << "limited width:" << limitedPixWidth;
     }
@@ -105,5 +104,5 @@ QImage ImgConverter::ScaleImage(QImage image, int scaleSize, Direction scaleDire
 
 double ImgConverter::CalcTargetSizeRate(qint64 size)
 {
-    return static_cast<double>(size) / 3000000;
+    return static_cast<double>(size) / UploadableMaxPngSize;
 }
