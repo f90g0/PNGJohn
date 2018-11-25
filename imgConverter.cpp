@@ -42,22 +42,17 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     int limitedPixHeight = round(qSqrt((uploadableMaxPixels * (float)argb32Image.height()) / (float)argb32Image.width()));
     qDebug() << "limited width:" << limitedPixWidth << " limited height:" << limitedPixHeight << " limited pix num:" << limitedPixHeight * limitedPixWidth;
     if(scaleDirection == Direction::Height) {
-        scaledImage = argb32Image.scaledToHeight((limitedPixHeight),Qt::SmoothTransformation);
         highSize = limitedPixHeight;
     } else {
-        scaledImage = argb32Image.scaledToWidth((limitedPixWidth),Qt::SmoothTransformation);
         highSize = limitedPixWidth;
-        qDebug() << scaledImage;
     }
+    scaledImage = ScaleImage(argb32Image, highSize, scaleDirection);
+
     scaledImage.save(&imageWriteBuffer, "PNG");
     double rate = CalcTargetSizeRate(imageWriteBuffer.size());
     while(rate <= tolerance || 1.00 <= rate){
         middleSize = (lowSize + highSize) / 2;
-        if(scaleDirection == Direction::Height) {
-            scaledImage = argb32Image.scaledToHeight(middleSize, Qt::SmoothTransformation);
-        } else {
-            scaledImage = argb32Image.scaledToWidth(middleSize, Qt::SmoothTransformation);
-        }
+        scaledImage = ScaleImage(argb32Image, middleSize, scaleDirection);
         qDebug() << "size" << scaledImage.width() << " x " << scaledImage.height();
         imageWriteBuffer.close();
         qDebug() << "buf size" << imageWriteBuffer.size();
@@ -93,6 +88,20 @@ QImage ImgConverter::SetAlphaChannelPixel(QImage image)
     qDebug() << "Output Size    : " << alphaSetImage.width() << " x " << alphaSetImage.height();
 
     return alphaSetImage;
+}
+
+QImage ImgConverter::ScaleImage(QImage image, int scaleSize, Direction scaleDirection)
+{
+    QImage scaledImage;
+
+    if(scaleDirection == Direction::Height) {
+        scaledImage = image.scaledToHeight(scaleSize, Qt::SmoothTransformation);
+    } else {
+        scaledImage = image.scaledToWidth(scaleSize, Qt::SmoothTransformation);
+    }
+    qDebug() << scaledImage;
+
+    return scaledImage;
 }
 
 double ImgConverter::CalcTargetSizeRate(qint64 size)
