@@ -1,15 +1,20 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "imgConverter.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->inputFilePath->setReadOnly(true);
+    ui->outputFilePath->setReadOnly(true);
 
-    connect(ui->imageBrowseButton, SIGNAL(clicked(bool)), this, SLOT(BrowseFile()));
-    connect(ui->convertButton,     SIGNAL(clicked(bool)), this, SLOT(onConvertButton()));
+    _imgConverter = new ImgConverter();
+
+    connect(ui->imageBrowseButton,  SIGNAL(clicked(bool)), this, SLOT(BrowseFile()));
+    connect(ui->convertButton,      SIGNAL(clicked(bool)), this, SLOT(OnConvertStart()));
+    connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(OnConvertStart()));
+    connect(ui->outputDirBrowseBtn, SIGNAL(clicked(bool)), this, SLOT(BrowseOutputDir()));
 }
 
 MainWindow::~MainWindow()
@@ -19,17 +24,29 @@ MainWindow::~MainWindow()
 
 void MainWindow::BrowseFile()
 {
-    QString filePath = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "", QDir::currentPath(), "Images (*.png *.jpg)"));
+    QStringList files = QFileDialog::getOpenFileNames(this, "", QDir::currentPath(), "Images (*.png *.jpg)");
 
-    QFile filePath_QFile(filePath);
-    QString absolutePath = QFileInfo(filePath_QFile).absolutePath(),
-            baseName     = QFileInfo(filePath_QFile).baseName();
+    for (int i = 0; i < files.size(); i++) {
+            QString nativeSeparatorPath = QDir::toNativeSeparators(files.at(i));
+            _nativeSeparatorPathList.append(nativeSeparatorPath);
+        }
 
-    ui->inputFilePath->insert(filePath);
+    PreviewImage(_nativeSeparatorPathList.at(0));
+
+    ui->inputFilePath->clear();
+    ui->inputFilePath->insert(_nativeSeparatorPathList.at(0));
+
+    QFile outputPath(ui->inputFilePath->text());
+    QString absoluteDir = QFileInfo(outputPath).absolutePath();
     ui->outputFilePath->clear();
-    ui->outputFilePath->insert(absolutePath + "/" + baseName + "_twi.png");
+    ui->outputFilePath->insert(absoluteDir + "/");
+}
 
-    PreviewImage(filePath);
+void MainWindow::BrowseOutputDir()
+{
+    QString outputDir = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, "", ui->outputFilePath->text()));
+    ui->outputFilePath->clear();
+    ui->outputFilePath->insert(outputDir + "/");
 }
 
 void MainWindow::PreviewImage(QString filePath)
@@ -48,9 +65,26 @@ void MainWindow::PreviewImage(QString filePath)
     ui->previewImage->setScene(&_preview);
 }
 
-void MainWindow::onConvertButton()
-{
-    ImgConverter(_previewImage, ui->outputFilePath->text(), ui->tolerance->value());
+void MainWindow::OnConvertStart()
+{    
+    if (_nativeSeparatorPathList.size() == 0) {
+        return;
+    }
 
-    qDebug() << ui->outputFilePath->text();
+    if (_nativeSeparatorPathList.size() == 1 || _convertCount == 0) {
+        if (_convertCount != 1) {
+            QFile fileName(_nativeSeparatorPathList.at(0));
+            QString outputBaseName = QFileInfo(fileName).baseName();
+            _imgConverter->StartConvert(_nativeSeparatorPathList.at(0), ui->outputFilePath->text() + outputBaseName + ui->suffixEdit->text() + ".png", ui->tolerance->value());
+            _convertCount = 1;
+        }
+    } else if (_convertCount != 0 && _convertCount != _nativeSeparatorPathList.size()) {
+        if(_nativeSeparatorPathList.size() != _convertCount) {
+            QFile fileName(_nativeSeparatorPathList.at(_convertCount));
+            QString outputBaseName = QFileInfo(fileName).baseName();
+            _imgConverter->StartConvert(_nativeSeparatorPathList.at(_convertCount), ui->outputFilePath->text() + outputBaseName + ui->suffixEdit->text() + ".png", ui->tolerance->value());
+            _convertCount+=1;
+        }
+    }
 }
+
