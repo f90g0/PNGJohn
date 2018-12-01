@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
+#include "imgConverter.h"
 
 
 
@@ -25,15 +26,22 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void ConvertOrder();
+
 public slots:
     void BrowseFile();
-    void onConvertButton();
+    void BrowseOutputDir();
+    void OnConvertStart();
 
 private:
     Ui::MainWindow *ui;
     QGraphicsScene _preview;
     void PreviewImage(QString filePath);
     QImage _previewImage;
+    QStringList _nativeSeparatorPathList;
+    ImgConverter* _imgConverter;
+    int _convertCount = 0;
 };
 
 #endif // MAINWINDOW_H

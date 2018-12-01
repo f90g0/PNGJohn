@@ -1,13 +1,25 @@
 #include "imgConverter.h"
 
-ImgConverter::ImgConverter(QImage convertImage, QString outputFilePath, double tolerance)
+ImgConverter::ImgConverter()
 {
-    QFuture<void> imgConverterThread = QtConcurrent::run(this, &ImgConverter::ResizeImage, convertImage, outputFilePath, tolerance);
+
 }
 
-void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, double tolerance)
+void ImgConverter::StartConvert(QString inputFilePath, QString outputFilePath, double tolerance)
 {
-    QImage originalImage = convertImage;
+    QFuture<void> imgConverterThread = QtConcurrent::run(this, &ImgConverter::ResizeImage, inputFilePath, outputFilePath, tolerance);
+}
+
+void ImgConverter::ResizeImage(QString inputFilePath, QString outputFilePath, double tolerance)
+{
+    QFile inputImage(inputFilePath);
+
+    if (!inputImage.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QByteArray inputImageArray = inputImage.readAll();
+
+    QImage originalImage = QImage::fromData(inputImageArray);
     QImage argb32Image = originalImage.convertToFormat(QImage::Format_ARGB32);
     QImage scaledImage; //Raw ARGB32 Image
     QByteArray bufferArray;
@@ -19,6 +31,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
         imageWriteBuffer.close();
         argb32Image = SetAlphaChannelPixel(argb32Image);
         argb32Image.save(outputFilePath, "PNG");
+        emit ConvertDone();
         qDebug() << "orig size";
         return;
     }
@@ -69,6 +82,7 @@ void ImgConverter::ResizeImage(QImage convertImage, QString outputFilePath, doub
     imageWriteBuffer.close();
     scaledImage = SetAlphaChannelPixel(scaledImage);
     scaledImage.save(outputFilePath, "PNG");
+    emit ConvertDone();
 }
 
 QImage ImgConverter::SetAlphaChannelPixel(QImage image)
