@@ -7,10 +7,17 @@
 #include <QtConcurrent>
 
 
-class ImgConverter
+class ImgConverter : public QObject
 {
+    Q_OBJECT
+
 public:
-    ImgConverter(QImage convertImage, QString outputFilePath, double tolerance);
+    ImgConverter();
+    void StartConvert(QString inputFilePath, QString outputFilePath, double tolerance);
+
+
+signals:
+    void ConvertDone();
 
 private:
     enum Direction
@@ -21,7 +28,7 @@ private:
     static const qint64 UploadableMaxPixels = 2048 * 2048; //Maximum supported　Pixel size.
     static const qint64 UploadableMaxPngSize = 3000000;
 
-    void ResizeImage(QImage convertImage, QString outputFilePath, double tolerance);
+    void ResizeImage(QString inputFilePath, QString outputFilePath, double tolerance);
     QImage SetAlphaChannelPixel(QImage nonAlphaImage);
     QImage ScaleImage(QImage image, int scaleSize, Direction scaleDirection);
     double CalcTargetSizeRate(qint64 size);

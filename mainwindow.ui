@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>380</height>
+    <height>459</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,6 +28,9 @@
     </property>
    </widget>
    <widget class="QLineEdit" name="inputFilePath">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -39,6 +42,9 @@
     <property name="text">
      <string/>
     </property>
+    <property name="frame">
+     <bool>true</bool>
+    </property>
     <property name="placeholderText">
      <string>Input Image Path</string>
     </property>
@@ -47,7 +53,7 @@
     <property name="geometry">
      <rect>
       <x>370</x>
-      <y>290</y>
+      <y>360</y>
       <width>113</width>
       <height>32</height>
      </rect>
@@ -70,7 +76,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>294</y>
+      <y>320</y>
       <width>341</width>
       <height>21</height>
      </rect>
@@ -94,26 +100,26 @@
      <bool>false</bool>
     </property>
     <property name="placeholderText">
-     <string>Output Image Path</string>
+     <string>Output directory</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>367</x>
       <y>50</y>
-      <width>91</width>
+      <width>131</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Size tolerance</string>
+     <string>Target size tolerance</string>
     </property>
    </widget>
    <widget class="QDoubleSpinBox" name="tolerance">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>367</x>
       <y>70</y>
       <width>68</width>
       <height>24</height>
@@ -139,6 +145,71 @@
     </property>
     <property name="value">
      <double>0.990000000000000</double>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="prevButton">
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>280</y>
+      <width>81</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Previous</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="nextButton">
+    <property name="geometry">
+     <rect>
+      <x>285</x>
+      <y>280</y>
+      <width>81</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Next</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="suffixEdit">
+    <property name="geometry">
+     <rect>
+      <x>367</x>
+      <y>130</y>
+      <width>113</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>_twi</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>367</x>
+      <y>110</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>File name suffix</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="outputDirBrowseBtn">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>315</y>
+      <width>113</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Browse...</string>
     </property>
    </widget>
   </widget>
