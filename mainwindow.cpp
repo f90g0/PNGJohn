@@ -26,20 +26,21 @@ void MainWindow::BrowseFile()
 {
     QStringList files = QFileDialog::getOpenFileNames(this, "", QDir::currentPath(), "Images (*.png *.jpg)");
 
-    for (int i = 0; i < files.size(); i++) {
+    if (!files.isEmpty()) {
+        for (int i = 0; i < files.size(); i++) {
             QString nativeSeparatorPath = QDir::toNativeSeparators(files.at(i));
             _nativeSeparatorPathList.append(nativeSeparatorPath);
         }
+        PreviewImage(_nativeSeparatorPathList.at(0));
 
-    PreviewImage(_nativeSeparatorPathList.at(0));
+        ui->inputFilePath->clear();
+        ui->inputFilePath->insert(_nativeSeparatorPathList.at(0));
 
-    ui->inputFilePath->clear();
-    ui->inputFilePath->insert(_nativeSeparatorPathList.at(0));
-
-    QFile outputPath(ui->inputFilePath->text());
-    QString absoluteDir = QFileInfo(outputPath).absolutePath();
-    ui->outputFilePath->clear();
-    ui->outputFilePath->insert(absoluteDir + "/");
+        QFile outputPath(ui->inputFilePath->text());
+        QString absoluteDir = QFileInfo(outputPath).absolutePath();
+        ui->outputFilePath->clear();
+        ui->outputFilePath->insert(absoluteDir + "/");
+    }
 }
 
 void MainWindow::BrowseOutputDir()
