@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->convertButton,      SIGNAL(clicked(bool)), this, SLOT(OnConvertStart()));
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(OnConvertStart()));
     connect(ui->outputDirBrowseBtn, SIGNAL(clicked(bool)), this, SLOT(BrowseOutputDir()));
+    connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(ProgressBar()));
 }
 
 MainWindow::~MainWindow()
@@ -87,5 +88,13 @@ void MainWindow::OnConvertStart()
             _convertCount+=1;
         }
     }
+}
+
+void MainWindow::ProgressBar()
+{
+    ui->progressBar->setMaximum(100 - (100 % _nativeSeparatorPathList.size()));
+    int count = 100/_nativeSeparatorPathList.size();
+    _progressBarCount = _progressBarCount + count;
+    ui->progressBar->setValue(_progressBarCount);
 }
 
