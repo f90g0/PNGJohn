@@ -11,10 +11,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     _imgConverter = new ImgConverter();
 
+    ui->statusLabel->setText("Choose Image File");
+
     connect(ui->imageBrowseButton,  SIGNAL(clicked(bool)), this, SLOT(BrowseFile()));
     connect(ui->convertButton,      SIGNAL(clicked(bool)), this, SLOT(OnConvertStart()));
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(OnConvertStart()));
     connect(ui->outputDirBrowseBtn, SIGNAL(clicked(bool)), this, SLOT(BrowseOutputDir()));
+    connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(ProgressBar()));
 }
 
 MainWindow::~MainWindow()
@@ -40,6 +43,7 @@ void MainWindow::BrowseFile()
         QString absoluteDir = QFileInfo(outputPath).absolutePath();
         ui->outputFilePath->clear();
         ui->outputFilePath->insert(absoluteDir + "/");
+        ui->statusLabel->setText("Ready");
     }
 }
 
@@ -77,6 +81,7 @@ void MainWindow::OnConvertStart()
             QFile fileName(_nativeSeparatorPathList.at(0));
             QString outputBaseName = QFileInfo(fileName).baseName();
             _imgConverter->StartConvert(_nativeSeparatorPathList.at(0), ui->outputFilePath->text() + outputBaseName + ui->suffixEdit->text() + ".png", ui->tolerance->value());
+            ui->statusLabel->setText("Converting... " + QString::number(_convertCount + 1) + "/" + QString::number(_nativeSeparatorPathList.size()));
             _convertCount = 1;
         }
     } else if (_convertCount != 0 && _convertCount != _nativeSeparatorPathList.size()) {
@@ -84,8 +89,23 @@ void MainWindow::OnConvertStart()
             QFile fileName(_nativeSeparatorPathList.at(_convertCount));
             QString outputBaseName = QFileInfo(fileName).baseName();
             _imgConverter->StartConvert(_nativeSeparatorPathList.at(_convertCount), ui->outputFilePath->text() + outputBaseName + ui->suffixEdit->text() + ".png", ui->tolerance->value());
+            ui->statusLabel->setText("Converting... " + QString::number(_convertCount + 1) + "/" + QString::number(_nativeSeparatorPathList.size()));
             _convertCount+=1;
         }
     }
+}
+
+void MainWindow::ProgressBar()
+{
+    int progressBarMaximum = 100 - (100 % _nativeSeparatorPathList.size());
+    ui->progressBar->setMaximum(progressBarMaximum);
+    int parCount = 100/_nativeSeparatorPathList.size();
+    _progressBarCount += parCount;
+    ui->progressBar->setValue(_progressBarCount);
+
+    if (progressBarMaximum == _progressBarCount) {
+           ui->statusLabel->setText("Convert done");
+    }
+
 }
 
