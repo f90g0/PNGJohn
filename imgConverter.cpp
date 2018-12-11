@@ -26,11 +26,11 @@ void ImgConverter::ResizeImage(QString inputFilePath, QString outputFilePath, do
     QBuffer imageWriteBuffer(&bufferArray);
 
     imageWriteBuffer.open(QIODevice::WriteOnly);
-    argb32Image.save(&imageWriteBuffer, "PNG");
+    argb32Image.save(&imageWriteBuffer, "PNG", PngQuality);
     if (imageWriteBuffer.size() <= UploadableMaxPngSize) {
         imageWriteBuffer.close();
         argb32Image = SetAlphaChannelPixel(argb32Image);
-        argb32Image.save(outputFilePath, "PNG");
+        argb32Image.save(outputFilePath, "PNG", PngQuality);
         emit ConvertDone();
         qDebug() << "orig size";
         return;
@@ -54,7 +54,7 @@ void ImgConverter::ResizeImage(QString inputFilePath, QString outputFilePath, do
     scaledImage = ScaleImage(argb32Image, highSize, scaleDirection);
     imageWriteBuffer.seek(0);
     bufferArray.clear();
-    scaledImage.save(&imageWriteBuffer, "PNG");
+    scaledImage.save(&imageWriteBuffer, "PNG", PngQuality);
 
     double rate = CalcTargetSizeRate(imageWriteBuffer.size());
     while(rate <= tolerance || 1.00 <= rate){
@@ -64,7 +64,7 @@ void ImgConverter::ResizeImage(QString inputFilePath, QString outputFilePath, do
         imageWriteBuffer.seek(0);
         qDebug() << "buf size" << imageWriteBuffer.size();
         bufferArray.clear();
-        scaledImage.save(&imageWriteBuffer, "PNG");
+        scaledImage.save(&imageWriteBuffer, "PNG", PngQuality);
 
         rate = CalcTargetSizeRate(imageWriteBuffer.size());
         qDebug() << "rate" << rate;
@@ -81,7 +81,7 @@ void ImgConverter::ResizeImage(QString inputFilePath, QString outputFilePath, do
     }
     imageWriteBuffer.close();
     scaledImage = SetAlphaChannelPixel(scaledImage);
-    scaledImage.save(outputFilePath, "PNG");
+    scaledImage.save(outputFilePath, "PNG", PngQuality);
     emit ConvertDone();
 }
 
