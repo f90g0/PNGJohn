@@ -33,6 +33,7 @@ public slots:
     void BrowseFile();
     void BrowseOutputDir();
     void OnConvertStart();
+    void ProgressBar();
 
 private:
     Ui::MainWindow *ui;
@@ -42,6 +43,7 @@ private:
     QStringList _nativeSeparatorPathList;
     ImgConverter* _imgConverter;
     int _convertCount = 0;
+    int _progressBarCount = 0;
 };
 
 #endif // MAINWINDOW_H
