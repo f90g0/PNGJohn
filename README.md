@@ -1,4 +1,4 @@
-# png-upload-twitter
+# PNGJohn
 Twitterに圧縮されないPNGを出力するためのアプリケーション
 
 ## Overview
