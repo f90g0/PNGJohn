@@ -12,3 +12,7 @@ Qt 5.9.6
 
 ## License
 MIT
+
+## Special thanks
+re3turn
+https://github.com/re3turn
