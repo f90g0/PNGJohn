@@ -27,7 +27,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::BrowseFile()
 {
-    QStringList files = QFileDialog::getOpenFileNames(this, "", QDir::currentPath(), "Images (*.png *.jpg)");
+    QStringList files = QFileDialog::getOpenFileNames(this, "", QDir::homePath(), "Images (*.png *.jpg)");
 
     if (!files.isEmpty()) {
         for (int i = 0; i < files.size(); i++) {
@@ -43,7 +43,7 @@ void MainWindow::BrowseFile()
         QString absoluteDir = QFileInfo(outputPath).absolutePath();
         ui->outputFilePath->clear();
         ui->outputFilePath->insert(absoluteDir + "/");
-        ui->statusLabel->setText("Ready");
+        ui->statusLabel->setText("Ready to convert");
     }
 }
 
@@ -106,6 +106,5 @@ void MainWindow::ProgressBar()
     if (progressBarMaximum == _progressBarCount) {
            ui->statusLabel->setText("Convert done");
     }
-
 }
 

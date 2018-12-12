@@ -7,11 +7,23 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>459</height>
+    <height>430</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>500</width>
+    <height>430</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>500</width>
+    <height>430</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>PNGJohn</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="imageBrowseButton">
@@ -53,7 +65,7 @@
     <property name="geometry">
      <rect>
       <x>370</x>
-      <y>360</y>
+      <y>330</y>
       <width>113</width>
       <height>32</height>
      </rect>
@@ -76,7 +88,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>320</y>
+      <y>300</y>
       <width>341</width>
       <height>21</height>
      </rect>
@@ -147,32 +159,6 @@
      <double>0.990000000000000</double>
     </property>
    </widget>
-   <widget class="QPushButton" name="prevButton">
-    <property name="geometry">
-     <rect>
-      <x>13</x>
-      <y>280</y>
-      <width>81</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Previous</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="nextButton">
-    <property name="geometry">
-     <rect>
-      <x>285</x>
-      <y>280</y>
-      <width>81</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Next</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="suffixEdit">
     <property name="geometry">
      <rect>
@@ -203,7 +189,7 @@
     <property name="geometry">
      <rect>
       <x>370</x>
-      <y>315</y>
+      <y>295</y>
       <width>113</width>
       <height>32</height>
      </rect>
@@ -216,7 +202,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>366</y>
+      <y>330</y>
       <width>341</width>
       <height>23</height>
      </rect>
@@ -229,7 +215,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>390</y>
+      <y>360</y>
       <width>121</width>
       <height>16</height>
      </rect>
