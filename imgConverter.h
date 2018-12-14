@@ -27,7 +27,7 @@ private:
     };
     static const qint64 UploadableMaxPixels = 2048 * 2048; //Maximum supported　Pixel size.
     static const qint64 UploadableMaxPngSize = 3000000;
-    static const int    PngQuality = 50;
+    static const int    PngQuality = 60;
 
     void ResizeImage(QString inputFilePath, QString outputFilePath, double tolerance);
     QImage SetAlphaChannelPixel(QImage nonAlphaImage);
