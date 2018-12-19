@@ -73,6 +73,7 @@ void MainWindow::PreviewImage(QString filePath)
 
 void MainWindow::OnConvertStart()
 {    
+    ui->progressBar->setValue(0);
     if (_nativeSeparatorPathList.size() == 0) {
         return;
     }
@@ -105,7 +106,10 @@ void MainWindow::ProgressBar()
     ui->progressBar->setValue(_progressBarCount);
 
     if (progressBarMaximum == _progressBarCount) {
-           ui->statusLabel->setText("Convert done");
+           ui->statusLabel->setText("Convert done. Choose Image File");
+           _progressBarCount = 0;
+           _convertCount = 0;
+           _nativeSeparatorPathList.clear();
     }
 }
 
