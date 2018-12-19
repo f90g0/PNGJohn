@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(OnConvertStart()));
     connect(ui->outputDirBrowseBtn, SIGNAL(clicked(bool)), this, SLOT(BrowseOutputDir()));
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(ProgressBar()));
-    connect(this, SIGNAL(OnDropFile(QStringList)), this, SLOT(DropFile(QStringList)));
+    connect(this,         SIGNAL(OnDropFile(QStringList)), this, SLOT(DropFile(QStringList)));
 }
 
 MainWindow::~MainWindow()
@@ -37,8 +37,6 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 
 void MainWindow::dropEvent(QDropEvent *e)
 {
-    qDebug() << e->mimeData()->urls().first().toLocalFile();
-
     QStringList dropFileList;
     foreach (const QUrl& url, e->mimeData()->urls()) {
         dropFileList.append( url.toLocalFile() );
