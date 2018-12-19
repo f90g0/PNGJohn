@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setAcceptDrops(true);
     setWindowTitle("PNGJohn v" + QString::number(APP_VERSION_MAJOR) + "." + QString::number(APP_VERSION_MINOR));
     ui->inputFilePath->setReadOnly(true);
     ui->outputFilePath->setReadOnly(true);
@@ -19,12 +20,33 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(OnConvertStart()));
     connect(ui->outputDirBrowseBtn, SIGNAL(clicked(bool)), this, SLOT(BrowseOutputDir()));
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(ProgressBar()));
+    connect(this, SIGNAL(OnDropFile(QStringList)), this, SLOT(DropFile(QStringList)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if(e->mimeData()->hasFormat("text/uri-list")) {
+        e->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    qDebug() << e->mimeData()->urls().first().toLocalFile();
+
+    QStringList dropFileList;
+    foreach (const QUrl& url, e->mimeData()->urls()) {
+        dropFileList.append( url.toLocalFile() );
+    }
+
+    emit OnDropFile(dropFileList);
+}
+
 
 void MainWindow::BrowseFile()
 {
@@ -38,13 +60,37 @@ void MainWindow::BrowseFile()
         PreviewImage(_nativeSeparatorPathList.at(0));
 
         ui->inputFilePath->clear();
-        ui->inputFilePath->insert(_nativeSeparatorPathList.at(0));
+        ui->inputFilePath->insert(_nativeSeparatorPathList.last());
 
         QFile outputPath(ui->inputFilePath->text());
         QString absoluteDir = QFileInfo(outputPath).absolutePath();
         ui->outputFilePath->clear();
         ui->outputFilePath->insert(absoluteDir + "/");
         ui->statusLabel->setText("Ready to convert");
+    }
+}
+
+void MainWindow::DropFile(QStringList dropFileList)
+{
+    QStringList files = dropFileList;
+
+    if (!files.isEmpty()) {
+        for (int i = 0; i < files.size(); i++) {
+            QString nativeSeparatorPath = QDir::toNativeSeparators(files.at(i));
+            _nativeSeparatorPathList.append(nativeSeparatorPath);
+        }
+        PreviewImage(_nativeSeparatorPathList.at(0));
+
+        ui->inputFilePath->clear();
+        ui->inputFilePath->insert(_nativeSeparatorPathList.last());
+
+        QFile outputPath(ui->inputFilePath->text());
+        QString absoluteDir = QFileInfo(outputPath).absolutePath();
+        ui->outputFilePath->clear();
+        ui->outputFilePath->insert(absoluteDir + "/");
+        ui->statusLabel->setText("Ready to convert");
+
+        qDebug()  << _nativeSeparatorPathList;
     }
 }
 
