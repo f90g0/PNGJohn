@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setAcceptDrops(true);
     setWindowTitle("PNGJohn v" + QString::number(APP_VERSION_MAJOR) + "." + QString::number(APP_VERSION_MINOR));
     ui->inputFilePath->setReadOnly(true);
     ui->outputFilePath->setReadOnly(true);
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(OnConvertStart()));
     connect(ui->outputDirBrowseBtn, SIGNAL(clicked(bool)), this, SLOT(BrowseOutputDir()));
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(ProgressBar()));
+    connect(this,         SIGNAL(OnDropFile(QStringList)), this, SLOT(DropFile(QStringList)));
 }
 
 MainWindow::~MainWindow()
@@ -26,26 +28,60 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if(e->mimeData()->hasFormat("text/uri-list")) {
+        e->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    QStringList dropFileList;
+    foreach (const QUrl& url, e->mimeData()->urls()) {
+        dropFileList.append( url.toLocalFile() );
+    }
+
+    emit OnDropFile(dropFileList);
+}
+
+
 void MainWindow::BrowseFile()
 {
     QStringList files = QFileDialog::getOpenFileNames(this, "", QDir::homePath(), "Images (*.png *.jpg)");
 
     if (!files.isEmpty()) {
-        for (int i = 0; i < files.size(); i++) {
-            QString nativeSeparatorPath = QDir::toNativeSeparators(files.at(i));
-            _nativeSeparatorPathList.append(nativeSeparatorPath);
-        }
-        PreviewImage(_nativeSeparatorPathList.at(0));
-
-        ui->inputFilePath->clear();
-        ui->inputFilePath->insert(_nativeSeparatorPathList.at(0));
-
-        QFile outputPath(ui->inputFilePath->text());
-        QString absoluteDir = QFileInfo(outputPath).absolutePath();
-        ui->outputFilePath->clear();
-        ui->outputFilePath->insert(absoluteDir + "/");
-        ui->statusLabel->setText("Ready to convert");
+        FileListControll(files);
     }
+}
+
+void MainWindow::DropFile(QStringList dropFileList)
+{
+    QStringList files = dropFileList;
+
+    if (!files.isEmpty()) {
+        FileListControll(files);
+    }
+}
+
+void MainWindow::FileListControll(QStringList fileList)
+{
+    QStringList files = fileList;
+    for (int i = 0; i < files.size(); i++) {
+        QString nativeSeparatorPath = QDir::toNativeSeparators(files.at(i));
+        _nativeSeparatorPathList.append(nativeSeparatorPath);
+    }
+    PreviewImage(_nativeSeparatorPathList.at(0));
+
+    ui->inputFilePath->clear();
+    ui->inputFilePath->insert(_nativeSeparatorPathList.last());
+
+    QFile outputPath(ui->inputFilePath->text());
+    QString absoluteDir = QFileInfo(outputPath).absolutePath();
+    ui->outputFilePath->clear();
+    ui->outputFilePath->insert(absoluteDir + "/");
+    ui->statusLabel->setText("Ready to convert");
+    qDebug() << _nativeSeparatorPathList;
 }
 
 void MainWindow::BrowseOutputDir()
@@ -73,6 +109,7 @@ void MainWindow::PreviewImage(QString filePath)
 
 void MainWindow::OnConvertStart()
 {    
+    ui->progressBar->setValue(0);
     if (_nativeSeparatorPathList.size() == 0) {
         return;
     }
@@ -105,7 +142,10 @@ void MainWindow::ProgressBar()
     ui->progressBar->setValue(_progressBarCount);
 
     if (progressBarMaximum == _progressBarCount) {
-           ui->statusLabel->setText("Convert done");
+           ui->statusLabel->setText("Convert done. Choose Image File");
+           _progressBarCount = 0;
+           _convertCount = 0;
+           _nativeSeparatorPathList.clear();
     }
 }
 
