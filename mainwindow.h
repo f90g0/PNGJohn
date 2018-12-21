@@ -25,12 +25,16 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dropEvent(QDropEvent *e);
 
 signals:
     void ConvertOrder();
+    void OnDropFile(QStringList dropFileList);
 
 public slots:
     void BrowseFile();
+    void DropFile(QStringList dropFileList);
     void BrowseOutputDir();
     void OnConvertStart();
     void ProgressBar();
@@ -44,6 +48,7 @@ private:
     ImgConverter* _imgConverter;
     int _convertCount = 0;
     int _progressBarCount = 0;
+    void FileListControll(QStringList fileList);
 };
 
 #endif // MAINWINDOW_H
