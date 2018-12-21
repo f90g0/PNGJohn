@@ -48,6 +48,7 @@ private:
     ImgConverter* _imgConverter;
     int _convertCount = 0;
     int _progressBarCount = 0;
+    void FileListControll(QStringList fileList);
 };
 
 #endif // MAINWINDOW_H
