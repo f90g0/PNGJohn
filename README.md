@@ -14,7 +14,7 @@ Qt 5.9.6
 MIT
 
 ## Release
-Binary for Mac and Windows
+Binary for Mac and Windows.  
 https://github.com/kai4562/PNGJohn/releases
 
 ## Special thanks
