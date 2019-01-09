@@ -74,16 +74,6 @@
      <string>Convert</string>
     </property>
    </widget>
-   <widget class="QGraphicsView" name="previewImage">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>341</width>
-      <height>241</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="outputFilePath">
     <property name="geometry">
      <rect>
@@ -222,6 +212,16 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QListView" name="listView">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>40</y>
+      <width>341</width>
+      <height>241</height>
+     </rect>
     </property>
    </widget>
   </widget>

@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->statusLabel->setText("Choose Image File");
 
+    QStandardItemModel * listItemModel = new QStandardItemModel();
+    ui->listView->setModel(listItemModel);
+
     connect(ui->imageBrowseButton,  SIGNAL(clicked(bool)), this, SLOT(BrowseFile()));
     connect(ui->convertButton,      SIGNAL(clicked(bool)), this, SLOT(OnConvertStart()));
     connect(_imgConverter,          SIGNAL(ConvertDone()), this, SLOT(OnConvertStart()));
@@ -71,17 +74,29 @@ void MainWindow::FileListControll(QStringList fileList)
         QString nativeSeparatorPath = QDir::toNativeSeparators(files.at(i));
         _nativeSeparatorPathList.append(nativeSeparatorPath);
     }
-    PreviewImage(_nativeSeparatorPathList.at(0));
 
     ui->inputFilePath->clear();
     ui->inputFilePath->insert(_nativeSeparatorPathList.last());
+    FileListView(files);
 
     QFile outputPath(ui->inputFilePath->text());
     QString absoluteDir = QFileInfo(outputPath).absolutePath();
     ui->outputFilePath->clear();
     ui->outputFilePath->insert(absoluteDir + "/");
     ui->statusLabel->setText("Ready to convert");
-    qDebug() << _nativeSeparatorPathList;
+}
+
+void MainWindow::FileListView(QStringList fileList)
+{
+    QStandardItemModel * model = qobject_cast<QStandardItemModel*>(ui->listView->model());
+    QStandardItem * item = NULL;
+    foreach (QString text, fileList) {
+        item = new QStandardItem();
+        Q_CHECK_PTR(item);
+        item->setText(text);
+        item->setEditable(false);
+        model->appendRow(item);
+    }
 }
 
 void MainWindow::BrowseOutputDir()
@@ -89,22 +104,6 @@ void MainWindow::BrowseOutputDir()
     QString outputDir = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, "", ui->outputFilePath->text()));
     ui->outputFilePath->clear();
     ui->outputFilePath->insert(outputDir + "/");
-}
-
-void MainWindow::PreviewImage(QString filePath)
-{
-    QFile previewImageData(filePath);
-
-    if (!previewImageData.open(QIODevice::ReadOnly)) {
-        return;
-    }
-
-    QByteArray previewImageArray = previewImageData.readAll();
-    _previewImage = QImage::fromData(previewImageArray);
-    QGraphicsPixmapItem *preview_image_item = new QGraphicsPixmapItem(QPixmap::fromImage(_previewImage));
-    _preview.addItem(preview_image_item);
-    ui->previewImage->scale(ui->previewImage->width() / _preview.width(), ui->previewImage->height() / _preview.height());
-    ui->previewImage->setScene(&_preview);
 }
 
 void MainWindow::OnConvertStart()
@@ -118,7 +117,9 @@ void MainWindow::OnConvertStart()
         if (_convertCount != 1) {
             QFile fileName(_nativeSeparatorPathList.at(0));
             QString outputBaseName = QFileInfo(fileName).baseName();
-            _imgConverter->StartConvert(_nativeSeparatorPathList.at(0), ui->outputFilePath->text() + outputBaseName + ui->suffixEdit->text() + ".png", ui->tolerance->value());
+            _imgConverter->StartConvert(_nativeSeparatorPathList.at(0), ui->outputFilePath->text()
+                                        + outputBaseName + ui->suffixEdit->text() + ".png", ui->tolerance->value());
+
             ui->statusLabel->setText("Converting... " + QString::number(_convertCount + 1) + "/" + QString::number(_nativeSeparatorPathList.size()));
             _convertCount = 1;
         }
@@ -126,9 +127,11 @@ void MainWindow::OnConvertStart()
         if(_nativeSeparatorPathList.size() != _convertCount) {
             QFile fileName(_nativeSeparatorPathList.at(_convertCount));
             QString outputBaseName = QFileInfo(fileName).baseName();
-            _imgConverter->StartConvert(_nativeSeparatorPathList.at(_convertCount), ui->outputFilePath->text() + outputBaseName + ui->suffixEdit->text() + ".png", ui->tolerance->value());
+            _imgConverter->StartConvert(_nativeSeparatorPathList.at(_convertCount), ui->outputFilePath->text()
+                                        + outputBaseName + ui->suffixEdit->text() + ".png", ui->tolerance->value());
+
             ui->statusLabel->setText("Converting... " + QString::number(_convertCount + 1) + "/" + QString::number(_nativeSeparatorPathList.size()));
-            _convertCount+=1;
+            _convertCount += 1;
         }
     }
 }
@@ -142,10 +145,11 @@ void MainWindow::ProgressBar()
     ui->progressBar->setValue(_progressBarCount);
 
     if (progressBarMaximum == _progressBarCount) {
-           ui->statusLabel->setText("Convert done. Choose Image File");
-           _progressBarCount = 0;
-           _convertCount = 0;
-           _nativeSeparatorPathList.clear();
+        ui->listView->model()->removeRows(0,ui->listView->model()->rowCount());
+        ui->statusLabel->setText("Convert done. Choose Image File");
+        _progressBarCount = 0;
+        _convertCount = 0;
+        _nativeSeparatorPathList.clear();
     }
 }
 

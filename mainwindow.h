@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
+#include <QStandardItemModel>
 #include "imgConverter.h"
 
 
@@ -41,14 +42,12 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-    QGraphicsScene _preview;
-    void PreviewImage(QString filePath);
-    QImage _previewImage;
     QStringList _nativeSeparatorPathList;
     ImgConverter* _imgConverter;
     int _convertCount = 0;
     int _progressBarCount = 0;
     void FileListControll(QStringList fileList);
+    void FileListView(QStringList fileList);
 };
 
 #endif // MAINWINDOW_H
