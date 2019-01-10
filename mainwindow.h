@@ -47,7 +47,7 @@ private:
     int _convertCount = 0;
     int _progressBarCount = 0;
     void JobListControll(QStringList fileList);
-    void AddFileListViewItem(QStringList fileList);
+    void AddTableViewItem(QStringList fileList);
 };
 
 #endif // MAINWINDOW_H

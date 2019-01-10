@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->statusLabel->setText("Choose Image File");
 
     QStandardItemModel * listItemModel = new QStandardItemModel();
-    ui->listView->setModel(listItemModel);
+    ui->tableView->setModel(listItemModel);
 
     connect(ui->imageBrowseButton,  SIGNAL(clicked(bool)), this, SLOT(BrowseFile()));
     connect(ui->convertButton,      SIGNAL(clicked(bool)), this, SLOT(OnConvertStart()));
@@ -77,7 +77,7 @@ void MainWindow::JobListControll(QStringList fileList)
 
     ui->inputFilePath->clear();
     ui->inputFilePath->insert(_nativeSeparatorPathList.last());
-    AddFileListViewItem(files);
+    AddTableViewItem(files);
 
     QFile outputPath(ui->inputFilePath->text());
     QString absoluteDir = QFileInfo(outputPath).absolutePath();
@@ -86,9 +86,9 @@ void MainWindow::JobListControll(QStringList fileList)
     ui->statusLabel->setText("Ready to convert");
 }
 
-void MainWindow::AddFileListViewItem(QStringList fileList)
+void MainWindow::AddTableViewItem(QStringList fileList)
 {
-    QStandardItemModel * model = qobject_cast<QStandardItemModel*>(ui->listView->model());
+    QStandardItemModel * model = qobject_cast<QStandardItemModel*>(ui->tableView->model());
     QStandardItem * item = NULL;
     foreach (QString text, fileList) {
         item = new QStandardItem();
@@ -144,8 +144,9 @@ void MainWindow::ProgressBar()
     _progressBarCount += parCount;
     ui->progressBar->setValue(_progressBarCount);
 
+    // Determine the completion of processing by the value of the progress bar. (fuck)
     if (progressBarMaximum == _progressBarCount) {
-        ui->listView->model()->removeRows(0,ui->listView->model()->rowCount());
+        ui->tableView->model()->removeRows(0,ui->tableView->model()->rowCount());
         ui->statusLabel->setText("Convert done. Choose Image File");
         _progressBarCount = 0;
         _convertCount = 0;
