@@ -46,8 +46,8 @@ private:
     ImgConverter* _imgConverter;
     int _convertCount = 0;
     int _progressBarCount = 0;
-    void FileListControll(QStringList fileList);
-    void FileListView(QStringList fileList);
+    void JobListControll(QStringList fileList);
+    void AddFileListViewItem(QStringList fileList);
 };
 
 #endif // MAINWINDOW_H

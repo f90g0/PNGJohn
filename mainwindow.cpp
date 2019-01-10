@@ -54,7 +54,7 @@ void MainWindow::BrowseFile()
     QStringList files = QFileDialog::getOpenFileNames(this, "", QDir::homePath(), "Images (*.png *.jpg)");
 
     if (!files.isEmpty()) {
-        FileListControll(files);
+        JobListControll(files);
     }
 }
 
@@ -63,11 +63,11 @@ void MainWindow::DropFile(QStringList dropFileList)
     QStringList files = dropFileList;
 
     if (!files.isEmpty()) {
-        FileListControll(files);
+        JobListControll(files);
     }
 }
 
-void MainWindow::FileListControll(QStringList fileList)
+void MainWindow::JobListControll(QStringList fileList)
 {
     QStringList files = fileList;
     for (int i = 0; i < files.size(); i++) {
@@ -77,7 +77,7 @@ void MainWindow::FileListControll(QStringList fileList)
 
     ui->inputFilePath->clear();
     ui->inputFilePath->insert(_nativeSeparatorPathList.last());
-    FileListView(files);
+    AddFileListViewItem(files);
 
     QFile outputPath(ui->inputFilePath->text());
     QString absoluteDir = QFileInfo(outputPath).absolutePath();
@@ -86,7 +86,7 @@ void MainWindow::FileListControll(QStringList fileList)
     ui->statusLabel->setText("Ready to convert");
 }
 
-void MainWindow::FileListView(QStringList fileList)
+void MainWindow::AddFileListViewItem(QStringList fileList)
 {
     QStandardItemModel * model = qobject_cast<QStandardItemModel*>(ui->listView->model());
     QStandardItem * item = NULL;
