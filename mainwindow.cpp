@@ -90,6 +90,9 @@ void MainWindow::AddTableViewItem(QStringList fileList)
 {
     QStandardItemModel * model = qobject_cast<QStandardItemModel*>(ui->tableView->model());
     QStandardItem * item = NULL;
+    QStringList headerLabel;
+    headerLabel << "Image";
+    model->setHorizontalHeaderLabels(headerLabel);
     foreach (QString text, fileList) {
         item = new QStandardItem();
         Q_CHECK_PTR(item);
