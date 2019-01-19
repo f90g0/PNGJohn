@@ -99,6 +99,7 @@ void MainWindow::AddTableViewItem(QStringList fileList)
         item->setText(text);
         item->setEditable(false);
         model->appendRow(item);
+        ui->tableView->resizeColumnsToContents();
     }
 }
 
