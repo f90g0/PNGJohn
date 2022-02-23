@@ -12,11 +12,3 @@ Qt 5.9.6
 
 ## License
 MIT
-
-## Release
-Binary for Mac and Windows.  
-https://github.com/kai4562/PNGJohn/releases
-
-## Special thanks
-re3turn
-https://github.com/re3turn
