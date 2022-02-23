@@ -20,8 +20,3 @@ https://github.com/kai4562/PNGJohn/releases
 ## Special thanks
 re3turn
 https://github.com/re3turn
-
-## Other
-最初はPNG太郎と呼んでいたが，あまりにも格好がつかないのでジョンにした．
-
-日本語で言うところの山田太郎がJohn Smithらしいので．
